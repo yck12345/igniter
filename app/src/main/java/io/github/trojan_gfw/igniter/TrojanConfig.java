@@ -177,7 +177,7 @@ public class TrojanConfig implements Parcelable {
 
     public String getIdentifier() {
         // The type of RemoteAddress doesn't affect the result, whether it's IPv4/IPv6/Domain
-        return getRemoteAddr() + ":" + getRemotePort();
+        return getRemoteAddr() + ":" + getRemotePort()+"#"+getPassword();
     }
 
     public String getRemoteAddr() {
