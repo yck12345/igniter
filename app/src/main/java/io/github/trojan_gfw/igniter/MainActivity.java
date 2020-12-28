@@ -10,6 +10,7 @@ import android.net.VpnService;
 import android.os.Bundle;
 import android.os.RemoteException;
 import android.text.InputType;
+import android.util.Log;
 import android.view.GestureDetector;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -33,10 +34,17 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
+import org.jetbrains.annotations.NotNull;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import io.github.trojan_gfw.igniter.common.constants.Constants;
 import io.github.trojan_gfw.igniter.common.os.Task;
@@ -52,6 +60,13 @@ import io.github.trojan_gfw.igniter.servers.activity.ServerListActivity;
 import io.github.trojan_gfw.igniter.servers.data.ServerListDataManager;
 import io.github.trojan_gfw.igniter.servers.data.ServerListDataSource;
 import io.github.trojan_gfw.igniter.tile.ProxyHelper;
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
 
 
 public class MainActivity extends AppCompatActivity implements TrojanConnection.Callback {
@@ -476,6 +491,36 @@ public class MainActivity extends AppCompatActivity implements TrojanConnection.
             }
         });
         serverListDataManager = new ServerListDataManager(Globals.getTrojanConfigListPath(), false, "", 0L);
+
+        OkHttpClient client = new OkHttpClient().newBuilder().build();
+        MediaType mediaType = MediaType.parse("application/x-www-form-urlencoded");
+        RequestBody body = RequestBody.create(mediaType,"huoduan_verifycode=%E7%88%B1%E6%88%91%E4%B8%AD%E5%8D%8E");
+        Request request = new Request.Builder()
+                .url("https://iyideng.me/black-technology/cgfw/free-trojan-node.html")
+                .method("POST", body)
+                .build();
+       client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(@NotNull Call call, @NotNull IOException e) {
+
+            }
+
+            @Override
+            public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+                String html = response.body().string();
+                StringBuilder stringBuilder= new StringBuilder();
+                Pattern pattern = Pattern.compile("trojan://[^\\s]*<");
+                Matcher matcher = pattern.matcher(html);
+                while (matcher.find()){
+                    Log.d(TAG, "onResponse: "+matcher.group());
+                    stringBuilder.append(matcher.group()+" ");
+                }
+                String all = stringBuilder.toString().replaceAll("<", "");
+                serverListDataManager.saveServerConfigs(all);
+            }
+        });
+
+
         connection.connect(this, this);
         Threads.instance().runOnWorkThread(new Task() {
             @Override
