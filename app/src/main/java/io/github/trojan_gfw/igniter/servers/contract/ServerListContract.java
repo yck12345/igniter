@@ -44,6 +44,8 @@ public interface ServerListContract {
 
         void updateSubscribeServers();
 
+        void addServers(String content);
+
         void saveSubscribeSettings(String url);
 
         void hideSubscribeSettings();

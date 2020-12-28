@@ -26,6 +26,8 @@ public interface ServerListDataSource {
     @WorkerThread
     void saveServerConfig(TrojanConfig config);
 
+    void saveServerConfigs(String content);
+
     @WorkerThread
     void replaceServerConfigs(List<TrojanConfig> list);
 

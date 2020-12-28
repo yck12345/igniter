@@ -2,6 +2,8 @@ package io.github.trojan_gfw.igniter.servers.fragment;
 
 import android.Manifest;
 import android.app.Dialog;
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -9,6 +11,7 @@ import android.content.pm.PackageManager;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -43,12 +46,15 @@ import io.github.trojan_gfw.igniter.R;
 import io.github.trojan_gfw.igniter.TrojanConfig;
 import io.github.trojan_gfw.igniter.common.app.BaseFragment;
 import io.github.trojan_gfw.igniter.common.dialog.LoadingDialog;
+import io.github.trojan_gfw.igniter.common.os.Task;
+import io.github.trojan_gfw.igniter.common.os.Threads;
 import io.github.trojan_gfw.igniter.common.utils.SnackbarUtils;
 import io.github.trojan_gfw.igniter.qrcode.ScanQRCodeActivity;
 import io.github.trojan_gfw.igniter.servers.ItemVerticalMoveCallback;
 import io.github.trojan_gfw.igniter.servers.SubscribeSettingDialog;
 import io.github.trojan_gfw.igniter.servers.activity.ServerListActivity;
 import io.github.trojan_gfw.igniter.servers.contract.ServerListContract;
+import io.github.trojan_gfw.igniter.servers.presenter.ServerListPresenter;
 
 import static android.app.Activity.RESULT_OK;
 
@@ -68,6 +74,10 @@ public class ServerListFragment extends BaseFragment implements ServerListContra
     private Dialog mLoadingDialog;
     private boolean mBatchOperationMode;
 
+
+    String pasteData = "";
+    private ClipboardManager clipboard;
+
     public ServerListFragment() {
         // Required empty public constructor
     }
@@ -76,9 +86,14 @@ public class ServerListFragment extends BaseFragment implements ServerListContra
         return new ServerListFragment();
     }
 
+
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        clipboard = (ClipboardManager) getActivity().getSystemService(Context.CLIPBOARD_SERVICE);
+
         scanQRCodeRequestPermissionStartActivityLaunch = registerForActivityResult(new ActivityResultContracts.RequestPermission(),
                 new ActivityResultCallback<Boolean>() {
                     @Override
@@ -267,6 +282,7 @@ public class ServerListFragment extends BaseFragment implements ServerListContra
         inflater.inflate(R.menu.menu_server_list, menu);
         MenuItem qrCodeItem = menu.findItem(R.id.action_scan_qr_code).setVisible(!mBatchOperationMode);
         menu.findItem(R.id.action_import_from_file).setVisible(!mBatchOperationMode);
+        menu.findItem(R.id.action_import_from_clipboard).setVisible(!mBatchOperationMode);
         menu.findItem(R.id.action_export_to_file).setVisible(!mBatchOperationMode);
         menu.findItem(R.id.action_enter_batch_mode).setVisible(!mBatchOperationMode);
         menu.findItem(R.id.action_subscribe_settings).setVisible(!mBatchOperationMode);
@@ -317,6 +333,16 @@ public class ServerListFragment extends BaseFragment implements ServerListContra
                 return true;
             case R.id.action_import_from_file:
                 mPresenter.displayImportFileDescription();
+                return true;
+            case R.id.action_import_from_clipboard:
+                ClipData.Item clipitem = clipboard .getPrimaryClip().getItemAt(0);
+
+                // Gets the clipboard as text.
+                pasteData = (String) clipitem.getText();
+
+                Log.d(TAG, "onOptionsItemSelected: "+pasteData);
+
+                mPresenter.addServers(pasteData);
                 return true;
             case R.id.action_export_to_file:
                 mPresenter.exportServerListToFile();

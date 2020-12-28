@@ -6,6 +6,10 @@
         android:icon="@drawable/qr_code"
         app:showAsAction="ifRoom" />
 
+    <item android:id="@+id/action_import_from_clipboard"
+        android:title="@string/server_list_menu_import_from_clipboard"
+        app:showAsAction="never" />
+
     <item android:id="@+id/action_import_from_file"
         android:title="@string/server_list_menu_import_from_file"
         app:showAsAction="never" />

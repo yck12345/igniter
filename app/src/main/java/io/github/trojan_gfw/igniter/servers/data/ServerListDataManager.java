@@ -3,6 +3,7 @@ package io.github.trojan_gfw.igniter.servers.data;
 import android.content.Context;
 import android.net.Uri;
 import android.text.TextUtils;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -123,6 +124,12 @@ public class ServerListDataManager implements ServerListDataSource {
     }
 
     @Override
+    public void saveServerConfigs(String content) {
+        Log.d("TAG", "saveServerConfigs() called with: content = [" + content + "]");
+        parseAndSaveSubscribeServers(content," ");
+    }
+
+    @Override
     public void replaceServerConfigs(List<TrojanConfig> list) {
         TrojanHelper.writeTrojanServerConfigList(list, mConfigFilePath);
         TrojanHelper.ShowTrojanConfigList(mConfigFilePath);
@@ -163,7 +170,7 @@ public class ServerListDataManager implements ServerListDataSource {
                     if (TextUtils.isEmpty(response)) {
                         callback.onFailed();
                     } else {
-                        parseAndSaveSubscribeServers(Objects.requireNonNull(response));
+                        parseAndSaveSubscribeServers(Objects.requireNonNull(response),null);
                         callback.onSuccess();
                     }
                 }
@@ -178,9 +185,9 @@ public class ServerListDataManager implements ServerListDataSource {
         }
     }
 
-    private void parseAndSaveSubscribeServers(@NonNull String configLines) {
+    private void parseAndSaveSubscribeServers(@NonNull String configLines,String split) {
         Map<String, TrojanConfig> configMap = new HashMap<>(60);
-        List<TrojanConfig> parsedList = TrojanURLHelper.ParseTrojanConfigsFromContent(configLines);
+        List<TrojanConfig> parsedList = TrojanURLHelper.ParseTrojanConfigsFromContent(configLines,split);
         for (TrojanConfig ins : parsedList) {
             configMap.put(ins.getIdentifier(), ins);
         }

@@ -1,13 +1,18 @@
 package io.github.trojan_gfw.igniter;
 
+import android.util.Log;
+
 import com.google.gson.Gson;
 
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
 public class TrojanURLHelper {
+    private static String TAG="TAG";
+
     public static String GenerateTrojanURL(TrojanConfig trojanConfig) {
 
         URI trojanUri;
@@ -55,9 +60,11 @@ public class TrojanURLHelper {
         return retConfig;
     }
 
-    public static List<TrojanURLParseResult> ParseMultipleTrojanURL(String inputStr) {
+    public static List<TrojanURLParseResult> ParseMultipleTrojanURL(String inputStr,String split) {
         ArrayList<TrojanURLParseResult> ret = new ArrayList<TrojanURLParseResult>(5);
-        String[] trojanURLLines = inputStr.split("\\R+");
+        if (split==null||split.equals("")) split="\\R+";
+        String[] trojanURLLines = inputStr.split(split);
+        Log.d(TAG, "ParseMultipleTrojanURL: "+split+ Arrays.toString(trojanURLLines));
 
         for (String trojanURLLine : trojanURLLines) {
             TrojanURLParseResult parseResult = TrojanURLHelper.ParseTrojanURL(trojanURLLine);
@@ -68,9 +75,10 @@ public class TrojanURLHelper {
         return ret;
     }
 
-    public static List<TrojanConfig> ParseTrojanConfigsFromContent(String content) {
+    public static List<TrojanConfig> ParseTrojanConfigsFromContent(String content,String split) {
+        Log.d(TAG, "ParseTrojanConfigsFromContent() called with: content = [" + content + "], split = [" + split + "]");
         ArrayList<TrojanConfig> ret = new ArrayList<TrojanConfig>(5);
-        List<TrojanURLParseResult> parseResults = ParseMultipleTrojanURL(content);
+        List<TrojanURLParseResult> parseResults = ParseMultipleTrojanURL(content,split);
         for (TrojanURLParseResult singleParseResult : parseResults) {
             TrojanConfig newConfig = CombineTrojanURLParseResultToTrojanConfig(singleParseResult, Globals.getTrojanConfigInstance());
             ret.add(newConfig);

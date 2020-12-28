@@ -115,4 +115,5 @@
     <string name="scan_qr_code_from_camera">开相机扫描二维码</string>
     <string name="scan_qr_code_from_gallery">从相册读取二维码</string>
     <string name="server_list_lack_of_read_permission">缺少读取外部存储权限</string>
+    <string name="server_list_menu_import_from_clipboard">从剪贴板导入</string>
 </resources>

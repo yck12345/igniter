@@ -190,6 +190,16 @@ public class ServerListPresenter implements ServerListContract.Presenter {
     }
 
     @Override
+    public void addServers(String content) {
+        Threads.instance().runOnWorkThread(new Task() {
+            @Override
+            public void onRun() {
+                mDataManager.saveServerConfigs(content);
+            }
+        });
+    }
+
+    @Override
     public void saveSubscribeSettings(String url) {
         CommonSP.setServerSubscribeUrl(url);
     }
